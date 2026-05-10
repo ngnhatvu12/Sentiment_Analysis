@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  ai-sentiment-scheduler:
+    build: .
+    container_name: ai-sentiment-scheduler
+    restart: unless-stopped
+    env_file:
+      - .env.docker
+    volumes:
+      - ./logs:/app/logs
+      - ./training_data:/app/training_data
+      - ./trained_models:/app/trained_models
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    healthcheck:
+      test: ["CMD", "python", "main.py", "--stats", "1"]
+      interval: 1h
+      timeout: 30s
+      retries: 3
+      start_period: 40s
+
+  # Các services khác (database, redis, etc.) nếu có
+  # postgres:
+  #   image: postgres:13
+  #   environment:
+  #     POSTGRES_DB: sentiment_db
+  #     POSTGRES_USER: user
+  #     POSTGRES_PASSWORD: password
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data
+  #   ports:
+  #     - "5432:5432"
+
+# volumes:
+#   postgres_data:
